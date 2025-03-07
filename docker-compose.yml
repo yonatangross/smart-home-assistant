@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: smart-home-backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Database=Server=db;Database=smarthome;User=root;Password=root;
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+    networks:
+      - smart-home-network
+
+  frontend:
+    build: ./frontend
+    container_name: smart-home-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - smart-home-network
+
+  db:
+    image: mysql:8
+    container_name: smart-home-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: smarthome
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - smart-home-network
+
+volumes:
+  db_data:
+
+networks:
+  smart-home-network:
+    driver: bridge
